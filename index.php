@@ -12,14 +12,15 @@ function cleanInput($data) {
  if(!$mysqli){
 	  die('Andmebaasiga Ühendamine ebaõnnestus, veateade: ' . mysql_error());
  }
- if(isset($_GET['action']) and $_GET['action'] === 'redigeeri'){
-	 require 'redigeeri.php ';
- }elseif(isset($_GET['action']) and $_GET['action'] === 'login'){
-	 require 'login.php ';
-	 
-	 }elseif (isset($_SESSION['username'])){
+  if (isset($_SESSION['username'])){
 	 echo'Tere, ' .$_SESSION['username'] .'!';
 	 require 'db_data.php';
+	 
+	//kontrollime kas kasutaja soovib registreerida. 
+ }elseif(isset($_GET['action']) and $_GET['action'] === 'registreeri'){
+	 require 'register.php';
+ }elseif(isset($_GET['action']) and $_GET['action'] === 'login'){
+	 require 'login.php';
  }else{
 	 require 'db_tav.php';
  }

@@ -3,7 +3,7 @@ require_once("../config.php");
 function delete_entry($id){
 		
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME) ; 
-			$stmt = $mysqli->prepare("UPDATE users2 SET del=NOW() WHERE ID=?");
+			$stmt = $mysqli->prepare("UPDATE linnud SET del=NOW() WHERE id=?");
 			if(!$stmt){
 					die("juhtus viga delete_entry".$mysqli->error);
 			}
@@ -15,15 +15,15 @@ function delete_entry($id){
 		$mysqli->close();
 }
 		
-function update_entry($id, $name, $voit, $kaotus, $vslamm, $ssamm, $ristit){
+function update_entry($id, $name, $tunnus, $pesitsus){
 	
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME) ; 
 		
-		$stmt = $mysqli->prepare("UPDATE users2 SET name=?, voit=?, kaotus=?, vslamm=?, ssamm=?, ristit=? WHERE ID=?");
+		$stmt = $mysqli->prepare("UPDATE linnud SET name=?, tunnus=?, pesitsuspiirkond=? WHERE id=?");
 		if(!$stmt){
 			die("juhtus viga update_entry".$mysqli->error);
 		}
-		$stmt->bind_param("ssssss", $input['name'], $input['voit'], $input['kaotus'], $input['vslamm'], $input['ssamm'], $input['ristit']);
+		$stmt->bind_param("sss", $input['name'], $input['tunnus'], $input['pesitsus']);
 		if($stmt->execute()){
 			header("Location: redigeeri.php");
 		}
@@ -38,11 +38,11 @@ function get_Data($keyword=""){
 		
 		
 			$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME) ; 				
-		$stmt = $mysqli->prepare("SELECT ID, name, tunnus, pesitsuspiirkond from linnud WHERE del IS NULL AND name LIKE ? or tunnus LIKE ? ");
+		$stmt = $mysqli->prepare("SELECT id, name, tunnus, pesitsuspiirkond from linnud WHERE del IS NULL AND name LIKE ? ");
 		if(!$stmt){
 			die("juhtus viga get_Data".$mysqli->error);
 		}
-		$stmt->bind_param("ss", $search, $search);
+		$stmt->bind_param("s", $search );
 		$stmt->bind_result($id, $name, $tunnus, $pesitsus);
 		$stmt->execute();
 		$data_array = array();
@@ -51,46 +51,29 @@ function get_Data($keyword=""){
 			$data = new StdClass();
 			$data->id = $id;
 			$data->name = $name;
-			$data->voit = $pesitsus;
-		
-			//lisan massiivi ühe rea juurde
+			$data->tunnus = $tunnus;
+			$data->pesitsus= $pesitsus;
 			array_push($data_array, $data);
 		}
-		//tagastan massiivi, kus kõik read sees
 		return $data_array;
 			$stmt->close();
 			$mysqli->close();
 }
 function getEditData($id){
-		
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME) ;
-		
-		$stmt = $mysqli->prepare("SELECT name, voit, kaotus, vslamm, ssamm, ristit from users2 WHERE ID=? AND del IS NULL");
+		$stmt = $mysqli->prepare("SELECT name, tunnus, pesitsuspiirkond from linnud WHERE id=? AND del IS NULL");
 		$stmt->bind_param("i",$id);
-		$stmt->bind_result($name, $voit, $kaotus, $vslamm, $ssamm, $ristit);
+		$stmt->bind_result($name, $tunnus, $pesitsus);
 		$stmt->execute();
-		
-		//object
 		$data = new StdClass();
 		
-		// kas sain ühe rea andmeid kätte
-		//$stmt->fetch() annab ühe rea andmeid
 		if($stmt->fetch()){
-			//sain
 			$data->name = $name;
-			$data->voit = $voit;
-			$data->kaotus = $kaotus;
-			$data->vslamm = $vslamm;
-			$data->ssamm = $ssamm;
-			$data->ristit = $ristit;
-			
+			$data->tunnus = $tunnus;
+			$data->pesitsus = $pesitsus;
 		}else{
-			// ei saanud
-			// id ei olnud olemas, id=123123123
-			// rida on kustutatud, deleted ei ole NULL
 			header("Location: redigeeri.php");
 		}
-		
 		return $data;
 		
 		
@@ -98,18 +81,14 @@ function getEditData($id){
 		$mysqli->close();
 		
 	}
-function update_data($id, $name, $voit, $kaotus, $vslamm, $ssamm, $ristit){
+function update_data($id, $name, $tunnus, $pesitsus){
 		
 		$mysqli = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME) ;
-		$stmt = $mysqli->prepare("UPDATE users2 SET name=?, voit=?, kaotus=?, vslamm=?, ssamm=?, ristit=? WHERE id=?");
-		$stmt->bind_param("ssssssi", $name, $voit, $kaotus, $vslamm, $ssamm, $ristit, $id);
+		$stmt = $mysqli->prepare("UPDATE linnud SET name=?, tunnus=?, pesitsuspiirkond=? WHERE id=?");
+		$stmt->bind_param("sssi", $name, $tunnus, $pesitsus, $id);
 		if($stmt->execute()){
-			// sai uuendatud
-			// kustutame aadressirea tühjaks
 			header("Location: redigeeri.php");
-			
 		}
-		
 		$stmt->close();
 		$mysqli->close();
 	}

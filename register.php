@@ -2,55 +2,40 @@
 if(isset($msqly)){
 	die('Püüad mind häkkida');
 }
-	
 $errors = array();
 $input = array();
 $show_form = True;
-
 if($_SERVER["REQUEST_METHOD"] == "POST") {
-	//defineerime array ja käime kogu tsükli läbi muutujan fild for loop.
-	foreach(array('username', 'password') as $field){
+
+	foreach(array('username', 'password','firstname','lastname','phone') as $field){
 	
-			if ( empty($_POST[$field]) ) { //pole infot saatnud
+			if ( empty($_POST[$field]) ) { 
 				$errors[$field] = "See väli on kohustuslik";
 			}else{
-			// puhastame muutuja võimalikest üleliigsetest sümbolitest
+			
 				$input[$field] = cleanInput($_POST[$field]);
 			}
 		}
 		if(empty($errors)){
+			
 				$hash = hash("sha512", $input['password']);
 					
-				$stmt = $mysqli->prepare('SELECT id, email FROM users WHERE email =? AND password=?');
-				if(!$stmt){
-					die("juhtus viga".$mysqli->error);
-				}
-				$stmt->bind_param("ss", $input['username'], $hash);
-				
-				//muutujad tulemustele
-				$stmt->bind_result($id_from_db, $email_from_db);
-				$stmt->execute();
-				
-				//Kontrollin kas tulemusi leiti
-				if($stmt->fetch()){
-					// ab'i oli midagi
-					echo "Email ja parool õiged, kasutaja id=".$id_from_db;
-					header('Location: index.php'); //suunab index.php-sse
-					$show_form = False ;
-					$_SESSION['username'] = $email_from_db ;
-					$_SESSION['id'] = $id_from_db ;
-				}else{
-					// ei leidnud
-					$errors['username'] = 'Ei leidnud sellist kasutajat';
-				}
-				
-				$stmt->close();
-				
+					
+					$stmt = $mysqli->prepare("INSERT INTO user (email, password, first, last, phone) VALUES (?,?,?,?,?)");
+					
+					
+					
+					$stmt->bind_param("sssss", $input['username'], $hash,$input['firstname'],$input['lastname'],$input['phone']);
+					$stmt->execute();
+					$stmt->close();
+				header('Location: index.php'); 
+				$_SESSION['Register sooritatud']=True;
+				$show_form = False ;
 			
 			
 		}
 		
-	} 
+	}
 
 
 	
@@ -59,25 +44,26 @@ if($show_form){
 	<html>
 <head>
 <meta charset="UTF-8">
-  <title>Log In</title>
+  <title>Register</title>
 </head>
 <body>
-	<h2>Log In</h2>
-	<?php if(isset($_SESSION['Register sooritatud'])){
-		echo '<span style="color:green"> Registreerimine õnnestus. Logi sisse </span> ';
-		unset($_SESSION['Register sooritatud']);
-	}	
-	?>
-  <form action="index.php?action=login" method="post" >
+	<h2>Create user</h2>
+  <form action="index.php?action=registreeri" method="post" >
   	<input name="username" type="email" placeholder="E-post" value="<?php if(isset($input['username'])){echo $input['username'];} ?>">
 	<span style="color:red" ><?php if(isset($errors['username'])){echo $errors['username'];} ?> </span><br><br>
-  	<input name="password" type="password" placeholder="Parool"> 
-	<span style="color:red" ><?php if(isset($errors['password'])){echo $errors['password'];} ?> </span> <br><br>
-  	<input type="submit" value="Log In">
-	<br>
+	<input name="password" type="password" placeholder="Parool"> <?php if(isset($errors['password'])){echo $errors['password'];} ?> <br><br>
 	
-	<a href="index.php?action=registreeri">Siin saad registreerida</a>
+	<input name="firstname" type="name" placeholder="Eesnimi" value="<?php if(isset($input['firstname'])){echo $input['firstname'];} ?>">
+	<span style="color:red" ><?php if(isset($errors['firstname'])){echo $errors['firstname'];} ?> </span><br><br>
 	
+	<input name="lastname" type="text" placeholder="Perenimi" value="<?php if(isset($input['lastname'])){echo $input['lastname'];} ?>">
+	<span style="color:red" ><?php if(isset($errors['lastname'])){echo $errors['lastname'];} ?> </span><br><br>
+	
+	<input name="phone" type="text" placeholder="Telefon" value="<?php if(isset($input['phone'])){echo $input['phone'];} ?>">
+	<span style="color:red" ><?php if(isset($errors['phone'])){echo $errors['phone'];} ?> </span><br><br>
+	
+	<input type="submit" name="create" value="Create user">
+  	
   </form>
 <body>
 <html>

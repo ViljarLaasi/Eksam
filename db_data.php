@@ -5,13 +5,8 @@ if(isset($msqly)){
 	if(!isset($_SESSION["id"])){
 		header("id");
 	}
-		
 	if(isset($_GET["logout"])){
-		//aadressireal on olemas muutuja logout
-		
-		//kustutame kõik session muutujad ja peatame sessiooni
 		session_destroy();
-		
 		header("Location: login.php");
 	}
 ?>
@@ -25,43 +20,31 @@ $errors = array();
 $input = array();
 $show_form = False ; 
 if($_SERVER["REQUEST_METHOD"] == "POST") {
-	//defineerime array ja käime kogu tsükli läbi muutujan fild for loop.
-	foreach(array('name','voit', 'kaotus','vslamm','ssamm','ristit') as $field){
-	
-			if ( empty($_POST['name'])) { 
-				
-				$errors[$field] = "See väli on kohustuslik";
-				
-			}else{
-		
+	foreach(array('name', 'tunnus', 'pesitsus') as $field){
+			//if ( empty($_POST['$name'])) { 
+				//$errors[$field] = "See väli on kohustuslik";	
+			//}else{
 				$input[$field] = cleanInput($_POST[$field]);
-			}
+			//}
 		}
 		if(empty($errors)){
-			
-					//Salvestame AB'i
-					$stmt = $mysqli->prepare("INSERT INTO users2 (name, voit, kaotus, vslamm, ssamm, ristit) VALUES (?,?,?,?,?,?)");
+					$stmt = $mysqli->prepare("INSERT INTO linnud (name, tunnus, pesitsuspiirkond) VALUES (?,?,?)");
 					if(!$stmt){
 					die("juhtus viga".$mysqli->error);
-				}
-					$stmt->bind_param("ssssss", $input['name'], $input['voit'], $input['kaotus'], $input['vslamm'], $input['ssamm'], $input['ristit']);
+					}
+					$stmt->bind_param("sss", $input['name'], $input['tunnus'], $input['pesitsus']);
 					$stmt->execute();
 					$stmt->close();
 				$_SESSION['lisa']=True;
 				$show_form = True ;
-				
-				
-			
-			
 		}
-		
 	}
 	?>
 	
 	<html>
 <head>
 <meta charset="UTF-8">
-  <title>Mängude andmebaas</title>
+  <title>Lisa märgatud lindude andmed</title>
 </head>
 <body>
 	<?php if($show_form){
@@ -69,23 +52,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 	}	
 ?>
 
-	<h2> Lisa mängitud mängu andmed andmebaasi</h2>
+	<h2> Lisa linnud andmebaasi</h2>
   <form action="index.php?action=registreeri" method="post" >
-	<input name="name" type="name" placeholder="Mängija nimi" value="<?php if(isset($input['name'])){echo $input['name'];} ?>">
-	<span style="color:red" ><?php if(isset($errors['name'])){echo $errors['name'];} ?> </span><br><br>
-  
-  	<input name="voit" type="number" placeholder="Võit" value="<?php if(isset($input['voit'])){echo $input['voit'];} ?>">
+	<input name="name" type="text" placeholder="Linnu nimi" value="<?php if(isset($input['name'])){echo $input['name'];} ?>">
 	<br><br>
-	<input name="kaotus" type="number" placeholder="Kaotus"value="<?php if(isset($input['kaotus'])){echo $input['kaotus'];} ?>"> 
+  	<input name="tunnus" type="text" placeholder="Iseloomulikud tunnused" value="<?php if(isset($input['tunnus'])){echo $input['tunnus'];} ?>">
 	<br><br>
-	<input name="vslamm" type="number" placeholder="Väike slämm" value="<?php if(isset($input['vslamm'])){echo $input['vslamm'];} ?>">
-	<br><br>
-	<input name="ssamm" type="number" placeholder="Suur slämm" value="<?php if(isset($input['ssamm'])){echo $input['ssamm'];} ?>">
-	<br><br>
-	<input name="ristit" type="number" placeholder="Kaks ristit" value="<?php if(isset($input['ristit'])){echo $input['ristit'];} ?>">
+	<input name="pesitsus" type="text" placeholder="Pesitsuspiirkond"value="<?php if(isset($input['pesitsus'])){echo $input['pesitsus'];} ?>"> 
 	<br><br>
 	<input type="submit" name="create" value="Lae Andmed">
-	<a href="redigeeri.php">Siin saad registreerida</a>
+	<a href="redigeeri.php">Siin saad redigeerida</a>
   </form>
 <body>
 <html>

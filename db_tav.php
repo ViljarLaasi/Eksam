@@ -1,7 +1,7 @@
 <?php
 	
 
-echo"Tere tulemast redigeeri lehele";
+echo"Tere tulemast db_tav.php";
 
 if(isset($msqly)){
 	die('Püüad mind häkkida');
@@ -10,9 +10,6 @@ if(isset($msqly)){
 		header("id");
 	}
 	if(isset($_GET["logout"])){
-		//aadressireal on olemas muutuja logout
-		
-		//kustutame kõik session muutujad ja peatame sessiooni
 		session_destroy();
 		
 		header("Location: login.php");
@@ -49,12 +46,7 @@ $keyword = "";
 		
 	</tr>
 	<?php
-		// trükime välja read
-		// massiivi pikkus count()
 		for($i = 0; $i < count($data_array); $i++){
-			
-			//kasutaja tahab muuta seda rida
-				
 				echo "<tr>";
 				echo "<td>".$data_array[$i]->id."</td>";
 				echo "<td>".$data_array[$i]->name."</td>";
@@ -75,5 +67,3 @@ $keyword = "";
 
 
 
-
-?>
